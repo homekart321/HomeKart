@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeKart - Cart</title>
+
+    <style>
+        body { background: #f1f3f6; margin: 0; font-family: Arial; }
+        .cart-container { width: 90%; max-width: 800px; background: white; margin: 30px auto; padding: 20px; border-radius: 10px; }
+        .cart-item { display: flex; align-items: center; border-bottom: 1px solid #ddd; padding: 15px 0; }
+        .cart-item img { width: 80px; height: 80px; border-radius: 8px; margin-right: 20px; }
+        .cart-details { flex: 1; }
+        .price { color: #388e3c; font-weight: bold; margin-top: 5px; }
+        .remove-btn { background: red; color: white; padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; }
+        .total-box { font-size: 22px; margin-top: 20px; text-align: right; font-weight: bold; }
+        .back-btn { display: block; width: 220px; margin: 25px auto 10px; padding: 12px; background: #2874f0; color: white; text-align: center; text-decoration: none; font-size: 18px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+
+    <div class="cart-container">
+        <h2>Your Cart</h2>
+        <div id="cartItems"></div>
+        <div class="total-box" id="totalAmount">Total: ₹0</div>
+    </div>
+
+    <a id="backBtn" class="back-btn">← Back</a>
+
+<script>
+    // USE SAVED LAST PAGE FOR BACK BUTTON
+    document.addEventListener("DOMContentLoaded", () => {
+        let lastPage = localStorage.getItem("lastPage");
+
+        // If no last page saved, go to home
+        if (!lastPage) lastPage = "index.html";
+
+        document.getElementById("backBtn").href = lastPage;
+    });
+
+    function loadCart(){
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let cartContainer = document.getElementById("cartItems");
+        cartContainer.innerHTML = "";
+        let totalPrice = 0;
+
+        cart.forEach((item, index) => {
+            totalPrice += item.price;
+            cartContainer.innerHTML += `
+                <div class="cart-item">
+                    <img src="${item.img}" alt="Product">
+                    <div class="cart-details">
+                        <h3>${item.name}</h3>
+                        <p class="price">₹${item.price}</p>
+                    </div>
+                    <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                </div>
+            `;
+        });
+
+        document.getElementById("totalAmount").innerText = "Total: ₹" + totalPrice;
+    }
+
+    function removeItem(index){
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        cart.splice(index, 1);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        loadCart();
+    }
+
+    loadCart();
+</script>
+
+</body>
+</html>

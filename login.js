@@ -23,11 +23,11 @@ loginBtn.addEventListener("click", async () => {
         // Firebase Login
         const user = await signInWithEmailAndPassword(auth, email, password);
 
-        // Save login status
-        localStorage.setItem("loggedInUser", email);
+        // SAVE LOGIN STATUS (this was wrong earlier)
+        localStorage.setItem("homekart_user", JSON.stringify({ email }));
 
         alert("Login successful!");
-        window.location.href = "index.html"; // redirect to home
+        window.location.href = "index.html";
 
     } catch (error) {
         alert(error.message);

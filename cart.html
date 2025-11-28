@@ -27,49 +27,86 @@
 
     <a id="backBtn" class="back-btn">← Back</a>
 
-<script>
-    // USE SAVED LAST PAGE FOR BACK BUTTON
-    document.addEventListener("DOMContentLoaded", () => {
-        let lastPage = localStorage.getItem("lastPage");
+    <!-- FIREBASE IMPORTS -->
+    <script type="module">
+        import { auth } from "./firebase.js";
+        import {
+            getFirestore, doc, getDoc, updateDoc
+        } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
-        // If no last page saved, go to home
-        if (!lastPage) lastPage = "index.html";
+        const db = getFirestore();
 
-        document.getElementById("backBtn").href = lastPage;
-    });
+        // -----------------------------
+        //   1. CHECK IF LOGGED IN
+        // -----------------------------
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) {
+                alert("Please login to view your cart.");
+                window.location.href = "login.html";
+                return;
+            }
 
-    function loadCart(){
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        let cartContainer = document.getElementById("cartItems");
-        cartContainer.innerHTML = "";
-        let totalPrice = 0;
-
-        cart.forEach((item, index) => {
-            totalPrice += item.price;
-            cartContainer.innerHTML += `
-                <div class="cart-item">
-                    <img src="${item.img}" alt="Product">
-                    <div class="cart-details">
-                        <h3>${item.name}</h3>
-                        <p class="price">₹${item.price}</p>
-                    </div>
-                    <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
-                </div>
-            `;
+            loadCartFirestore(user.uid);
         });
 
-        document.getElementById("totalAmount").innerText = "Total: ₹" + totalPrice;
-    }
+        // -----------------------------
+        //   2. LOAD CART FROM FIRESTORE
+        // -----------------------------
+        async function loadCartFirestore(uid) {
+            const ref = doc(db, "users", uid);
+            const snap = await getDoc(ref);
 
-    function removeItem(index){
-        let cart = JSON.parse(localStorage.getItem("cart")) || [];
-        cart.splice(index, 1);
-        localStorage.setItem("cart", JSON.stringify(cart));
-        loadCart();
-    }
+            let cart = snap.exists() ? snap.data().cart || [] : [];
 
-    loadCart();
-</script>
+            let container = document.getElementById("cartItems");
+            container.innerHTML = "";
+
+            let total = 0;
+
+            cart.forEach((item, index) => {
+                total += Number(item.price);
+
+                container.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${item.img}" alt="Product">
+                        <div class="cart-details">
+                            <h3>${item.name}</h3>
+                            <p class="price">₹${item.price}</p>
+                        </div>
+                        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                    </div>
+                `;
+            });
+
+            document.getElementById("totalAmount").innerText = "Total: ₹" + total;
+
+            // store globally to remove later
+            window.cartData = cart;
+            window.userId = uid;
+        }
+
+        // -----------------------------
+        //   3. REMOVE ITEM FROM CART
+        // -----------------------------
+        window.removeItem = async function (index) {
+            window.cartData.splice(index, 1);
+
+            const ref = doc(db, "users", window.userId);
+            await updateDoc(ref, { cart: window.cartData });
+
+            loadCartFirestore(window.userId);
+        };
+
+        // -----------------------------
+        //   4. BACK BUTTON LOGIC
+        // -----------------------------
+        document.addEventListener("DOMContentLoaded", () => {
+            let lastPage = localStorage.getItem("lastPage");
+            if (!lastPage) lastPage = "index.html";
+            document.getElementById("backBtn").href = lastPage;
+        });
+
+    </script>
 
 </body>
 </html>

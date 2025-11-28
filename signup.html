@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HomeKart Signup</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #f1f3f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 10px;
+        }
+
+        .signup-box {
+            width: 350px;
+            max-width: 100%;
+            background: white;
+            padding: 30px;
+            border-radius: 6px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .signup-box h2 {
+            margin: 0 0 20px 0;
+            color: #2874f0;
+            text-align: center;
+        }
+
+        .signup-box input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            outline: none;
+            font-size: 15px;
+        }
+
+        .signup-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2874f0;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: #2874f0;
+            text-decoration: none;
+        }
+
+        @media (max-width: 450px) {
+            .signup-box {
+                padding: 20px;
+            }
+            .signup-box h2 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="signup-box">
+        <h2>Create Account</h2>
+
+        <input type="text" id="name" placeholder="Full Name">
+        <input type="email" id="email" placeholder="Enter Email">
+        <input type="password" id="password" placeholder="Create Password">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password">
+
+        <button class="signup-btn" onclick="signup()">Create Account</button>
+
+        <div class="login-link">
+            Already have an account? <a href="login.html">Login</a>
+        </div>
+
+        <div style="text-align:center; margin-top:15px;">
+            <a href="index.html" style="color:#2874f0; text-decoration:none; font-size:15px;">← Back</a>
+        </div>
+    </div>
+
+    <!-- Firebase & Auth -->
+    <script src="firebase.js"></script>
+
+    <script>
+        // SIGNUP FUNCTION
+        function signup() {
+            const name = document.getElementById("name").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+
+            if (!name || !email || !password) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            // Firebase Signup
+            firebase.auth().createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+
+                    // Save NAME in Firebase user profile
+                    user.updateProfile({
+                        displayName: name
+                    });
+
+                    alert("Account created successfully!");
+                    window.location.href = "login.html";
+                })
+                .catch((error) => {
+                    alert(error.message);
+                });
+        }
+    </script>
+
+</body>
+</html>

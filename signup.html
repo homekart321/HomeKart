@@ -65,15 +65,6 @@
             color: #2874f0;
             text-decoration: none;
         }
-
-        @media (max-width: 450px) {
-            .signup-box {
-                padding: 20px;
-            }
-            .signup-box h2 {
-                font-size: 22px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -86,7 +77,7 @@
         <input type="password" id="password" placeholder="Create Password">
         <input type="password" id="confirmPassword" placeholder="Confirm Password">
 
-        <button class="signup-btn" onclick="signup()">Create Account</button>
+        <button class="signup-btn" id="signupBtn">Create Account</button>
 
         <div class="login-link">
             Already have an account? <a href="login.html">Login</a>
@@ -97,14 +88,30 @@
         </div>
     </div>
 
-    <!-- Firebase & Auth -->
-    <script src="firebase.js"></script>
+    <!-- Firebase Modular SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            updateProfile 
+        } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
-    <script>
-        // SIGNUP FUNCTION
-        function signup() {
-            const name = document.getElementById("name").value;
-            const email = document.getElementById("email").value;
+        const firebaseConfig = {
+            apiKey: "AIzaSyDaEfwJMy4S1VeOIc3uSIF-DLgvdy3eV-E",
+            authDomain: "homekart-24604.firebaseapp.com",
+            projectId: "homekart-24604",
+            storageBucket: "homekart-24604.firebasestorage.app",
+            messagingSenderId: "321537189900",
+            appId: "1:321537189900:web:78897b3b226316de0b6629"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById("signupBtn").addEventListener("click", async () => {
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
             const confirmPassword = document.getElementById("confirmPassword").value;
 
@@ -118,23 +125,21 @@
                 return;
             }
 
-            // Firebase Signup
-            firebase.auth().createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    const user = userCredential.user;
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
-                    // Save NAME in Firebase user profile
-                    user.updateProfile({
-                        displayName: name
-                    });
-
-                    alert("Account created successfully!");
-                    window.location.href = "login.html";
-                })
-                .catch((error) => {
-                    alert(error.message);
+                await updateProfile(userCredential.user, {
+                    displayName: name
                 });
-        }
+
+                alert("Account created successfully!");
+                window.location.href = "login.html";
+
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
     </script>
 
 </body>

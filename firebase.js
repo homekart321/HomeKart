@@ -1,6 +1,7 @@
 // Import Firebase Modules (Modular Version)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js"; // NEW
 
 // Your Firebase Configuration
 const firebaseConfig = {
@@ -17,3 +18,6 @@ export const app = initializeApp(firebaseConfig);
 
 // Initialize Authentication
 export const auth = getAuth(app);
+
+// Initialize Firestore (NEW)
+export const db = getFirestore(app);

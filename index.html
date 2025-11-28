@@ -143,10 +143,8 @@
         </div>
 
         <div class="header-buttons">
-           <a href="login.html"> <button class="btn">Login</button></a>
-            
-           <a href="cart.html"> <button class="btn cart-btn">Cart</button></a>
-            
+           <a href="login.html"><button class="btn">Login</button></a>
+           <a href="cart.html"><button class="btn cart-btn">Cart</button></a>
         </div>
     </header>
 
@@ -193,11 +191,23 @@
                 <h2 class="section-title">${cat}</h2>
                 <div class="product-grid">
                     ${productsData.filter(p => p.category === cat).map(prod => `
-                        <div class="card">
-                            <img src="${prod.img || 'https://via.placeholder.com/150'}">
-                            <div class="card-title">${prod.title}</div>
-                            <div class="price">${prod.price}</div>
-                        </div>
+
+                        ${prod.title === "Boat Earbuds" ? `
+                            <a href="watch.html" style="text-decoration:none; color:inherit;">
+                                <div class="card">
+                                    <img src="${prod.img || 'https://via.placeholder.com/150'}">
+                                    <div class="card-title">${prod.title}</div>
+                                    <div class="price">${prod.price}</div>
+                                </div>
+                            </a>
+                        ` : `
+                            <div class="card">
+                                <img src="${prod.img || 'https://via.placeholder.com/150'}">
+                                <div class="card-title">${prod.title}</div>
+                                <div class="price">${prod.price}</div>
+                            </div>
+                        `}
+
                     `).join("")}
                 </div>
             `).join("");
@@ -231,5 +241,3 @@
 
 </body>
 </html>
-
-

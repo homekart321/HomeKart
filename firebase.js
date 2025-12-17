@@ -1,11 +1,13 @@
-// firebase.js (FULL & FINAL)
-
-// Import Firebase modules (MODULAR SDK)
+// Firebase core
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-app.js";
+
+// Firebase Auth
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+
+// Firestore (for cart sync across devices)
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
-// Your Firebase Configuration (UNCHANGED)
+// 🔐 Your Firebase configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDaEfwJMy4S1VeOIc3uSIF-DLgvdy3eV-E",
     authDomain: "homekart-24604.firebaseapp.com",
@@ -18,8 +20,8 @@ const firebaseConfig = {
 // Initialize Firebase
 export const app = initializeApp(firebaseConfig);
 
-// Firebase Auth
+// Auth instance
 export const auth = getAuth(app);
 
-// Firestore Database (FOR CART SYNC ACROSS DEVICES)
+// Firestore instance
 export const db = getFirestore(app);

@@ -1,37 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Boat Airdopes</title>
+</head>
+
+<body>
+
+<img src="boatbud3" width="300">
+<h2>Boat Airdopes 131</h2>
+<p>₹999</p>
+
+<button id="addCart">Add to Cart</button>
+<button onclick="location.href='cart.html'">Go to Cart</button>
+
 <script type="module">
 import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from 
-"https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
-import { collection, addDoc } from 
-"https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+import { addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
-let currentUser = null;
-
-onAuthStateChanged(auth, (user) => {
-  currentUser = user;
-});
-
-window.addToCart = async function () {
-  if (!currentUser) {
-    alert("Please login to add items to cart");
-    return;
-  }
-
-  await addDoc(collection(db, "carts", currentUser.uid, "items"), {
-    name: "boAt Airdopes 131",
-    price: 999,
-    img: "boatbud3",
-    createdAt: Date.now()
-  });
-
-  alert("Added to cart");
-};
-
-window.goToCart = function () {
-  if (!currentUser) {
+document.getElementById("addCart").onclick = async () => {
+  if (!auth.currentUser) {
     alert("Login required");
     return;
   }
-  location.href = "cart.html";
+
+  await addDoc(
+    collection(db, "carts", auth.currentUser.uid, "items"),
+    {
+      name: "Boat Airdopes 131",
+      price: 999,
+      img: "boatbud3"
+    }
+  );
+
+  alert("Added to cart");
 };
 </script>
+
+</body>
+</html>

@@ -1,144 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Your Cart - HomeKart</title>
-
-<style>
-body{
-    font-family:Arial, sans-serif;
-    background:#f1f3f6;
-    margin:0;
-}
-.container{
-    max-width:1000px;
-    margin:20px auto;
-    background:#fff;
-    padding:20px;
-    border-radius:6px;
-}
-h1{ margin-bottom:20px; }
-
-.cart-item{
-    display:flex;
-    gap:20px;
-    padding:15px;
-    border-bottom:1px solid #ddd;
-    align-items:center;
-}
-.cart-item img{
-    width:100px;
-    height:100px;
-    object-fit:cover;
-    border-radius:6px;
-}
-.cart-details{
-    flex:1;
-}
-.price{
-    font-size:18px;
-    color:green;
-    margin-top:6px;
-}
-.remove{
-    background:#fb641b;
-    border:none;
-    color:#fff;
-    padding:8px 14px;
-    border-radius:4px;
-    cursor:pointer;
-}
-.total{
-    text-align:right;
-    font-size:22px;
-    margin-top:20px;
-}
-.back{
-    background:#2874f0;
-    color:#fff;
-    padding:8px 14px;
-    border-radius:4px;
-    text-decoration:none;
-}
-.empty{
-    text-align:center;
-    padding:40px;
-    color:#777;
-}
-@media(max-width:600px){
-    .cart-item{flex-direction:column; align-items:flex-start;}
-    .cart-item img{width:100%;}
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-<a class="back" href="index.html">← Continue Shopping</a>
-<h1>Your Cart</h1>
-
-<div id="cartList"></div>
-<div class="total" id="totalPrice"></div>
-</div>
-
-<!-- ================= FIREBASE LOGIC ================= -->
 <script type="module">
 import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
-import { collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
-
-const cartList = document.getElementById("cartList");
-const totalPrice = document.getElementById("totalPrice");
+import { onAuthStateChanged } from 
+"https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+import { collection, getDocs, deleteDoc, doc } from 
+"https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
 onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-        window.location.href = "login.html";
-        return;
-    }
+  if (!user) {
+    alert("Login required");
+    location.href = "login.html";
+    return;
+  }
 
-    loadCart(user.uid);
+  const cartDiv = document.getElementById("cartItems");
+  const snap = await getDocs(collection(db, "carts", user.uid, "items"));
+  let total = 0;
+  cartDiv.innerHTML = "";
+
+  snap.forEach(d => {
+    const item = d.data();
+    total += item.price;
+    cartDiv.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.img}">
+        <div>${item.name} - ₹${item.price}</div>
+        <button onclick="remove('${d.id}')">Remove</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("totalAmount").innerText = "Total: ₹" + total;
 });
 
-async function loadCart(uid){
-    cartList.innerHTML = "";
-    totalPrice.innerHTML = "";
-    let total = 0;
-
-    const snap = await getDocs(collection(db, "carts", uid, "items"));
-
-    if (snap.empty){
-        cartList.innerHTML = `<div class="empty">Your cart is empty</div>`;
-        return;
-    }
-
-    snap.forEach((docSnap) => {
-        const item = docSnap.data();
-        total += item.price;
-
-        const div = document.createElement("div");
-        div.className = "cart-item";
-        div.innerHTML = `
-            <img src="${item.img}">
-            <div class="cart-details">
-                <h3>${item.name}</h3>
-                <div class="price">₹${item.price}</div>
-            </div>
-            <button class="remove">Remove</button>
-        `;
-
-        div.querySelector(".remove").onclick = async () => {
-            await deleteDoc(doc(db, "carts", uid, "items", docSnap.id));
-            loadCart(uid);
-        };
-
-        cartList.appendChild(div);
-    });
-
-    totalPrice.innerText = "Total: ₹" + total;
-}
+window.remove = async (id) => {
+  const user = auth.currentUser;
+  await deleteDoc(doc(db, "carts", user.uid, "items", id));
+  location.reload();
+};
 </script>
-
-</body>
-</html>

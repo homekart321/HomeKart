@@ -7,7 +7,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDaEfwJMy4S1VeOIc3uSIF-DLgvdy3eV-E",
   authDomain: "homekart-24604.firebaseapp.com",
   projectId: "homekart-24604",
-  storageBucket: "homekart-24604.firebasestorage.app",
+  storageBucket: "homekart-24604.appspot.com",
   messagingSenderId: "321537189900",
   appId: "1:321537189900:web:78897b3b226316de0b6629"
 };

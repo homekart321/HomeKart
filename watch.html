@@ -66,14 +66,13 @@ body { font-family: Arial, sans-serif; background:#f1f3f6; margin:0; }
 
 <!-- ================= FIREBASE LOGIC ================= -->
 <script type="module">
-import { auth } from "./firebase.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+import { auth, db } from "./firebase.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
+import { collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
 
-const db = getFirestore();
 let currentUser = null;
 
-// AUTH CHECK
+// Detect login
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
@@ -83,29 +82,28 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// ADD TO CART (USER-BOUND)
+// Add to cart (CLOUD)
 document.getElementById("addCartBtn").addEventListener("click", async () => {
     if (!currentUser) return;
 
     try {
-        await addDoc(collection(db, "users", currentUser.uid, "cart"), {
+        await addDoc(collection(db, "carts", currentUser.uid, "items"), {
             name: "boAt Airdopes 131",
             price: 999,
             img: "boatbud3",
             createdAt: Date.now()
         });
         alert("Added to cart");
-    } catch (err) {
-        alert("Failed to add to cart");
+    } catch (e) {
+        alert("Error adding to cart");
     }
 });
 
-// GO TO CART
+// Go to cart
 document.getElementById("goCartBtn").addEventListener("click", () => {
     window.location.href = "cart.html";
 });
 
-// IMAGE SWITCH
 window.changeImage = (img) => {
     document.getElementById("mainImage").src = img;
 };

@@ -6,9 +6,15 @@
     <title>HomeKart</title>
 
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial; }
-        body { background: #f2f4f7; }
-
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #f2f4f7;
+        }
         .top-bar {
             display: flex;
             align-items: center;
@@ -16,24 +22,24 @@
             padding: 8px 12px;
             background: #1976d2;
             color: white;
+            flex-wrap: wrap;
         }
-
-        .logo { font-size: 22px; font-weight: bold; }
-
+        .logo {
+            font-size: 22px;
+            font-weight: bold;
+        }
         .search-container {
             display: flex;
             flex: 1;
             max-width: 460px;
             margin: 8px;
         }
-
         .search-container input {
             flex: 1;
             padding: 8px;
             border: none;
             border-radius: 3px 0 0 3px;
         }
-
         .search-container button {
             padding: 8px 14px;
             background: #ffeb3b;
@@ -41,75 +47,43 @@
             border-radius: 0 3px 3px 0;
             font-weight: bold;
         }
-
-        .header-buttons { display: flex; gap: 6px; }
-
+        .header-buttons {
+            display: flex;
+            gap: 6px;
+        }
         .btn {
             padding: 6px 12px;
             background: white;
             border-radius: 4px;
             border: none;
-            cursor: pointer;
         }
-
         .cart-btn {
             background: #1e88e5;
             color: white;
         }
-
-        /* ACCOUNT POPUP */
-        .popup {
-            display: none;
-            position: fixed;
-            top: 60px;
-            right: 20px;
-            background: white;
-            width: 260px;
-            border-radius: 6px;
-            box-shadow: 0 5px 15px rgba(0,0,0,.3);
-            padding: 15px;
-            z-index: 999;
-        }
-
-        .popup p {
-            font-size: 14px;
-            margin-bottom: 10px;
-            word-break: break-all;
-        }
-
-        .popup button {
-            width: 100%;
-            padding: 8px;
-            border: none;
-            background: red;
-            color: white;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
         .category-bar {
             display: flex;
             overflow-x: auto;
             gap: 18px;
             padding: 10px;
             background: #f1f1f1;
+            white-space: nowrap;
         }
-
-        .category-bar a { color: #333; font-size: 14px; }
-
+        .category-bar a {
+            color: #333;
+            font-size: 14px;
+        }
         .section-title {
             font-size: 20px;
             font-weight: bold;
             margin: 20px 0 10px 15px;
         }
-
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
             gap: 15px;
             padding: 15px;
         }
-
         .card {
             background: white;
             padding: 10px;
@@ -117,16 +91,18 @@
             text-align: center;
             border: 1px solid #ddd;
         }
-
         .card img {
             width: 100%;
             height: 120px;
             object-fit: contain;
         }
-
+        .card-title {
+            font-size: 14px;
+        }
         .price {
             color: green;
             font-weight: bold;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -137,73 +113,107 @@
     <div class="logo">HomeKart</div>
 
     <div class="search-container">
-        <input placeholder="Search products">
-        <button>Search</button>
+        <input type="text" id="searchInput" placeholder="Search for products..." />
+        <button id="searchBtn">Search</button>
     </div>
 
     <div class="header-buttons">
-        <button class="btn" id="accountBtn">Login</button>
-        <a href="cart.html"><button class="btn cart-btn">Cart</button></a>
+        <a id="loginBtnLink" href="login.html">
+            <button class="btn" id="loginBtn">Login</button>
+        </a>
+        <a href="cart.html">
+            <button class="btn cart-btn">Cart</button>
+        </a>
     </div>
 </header>
 
-<!-- ACCOUNT POPUP -->
-<div class="popup" id="accountPopup">
-    <p id="userEmail"></p>
-    <button id="logoutBtn">Logout</button>
-</div>
-
 <nav class="category-bar">
     <a>Electronics</a>
+    <a>TVs & Appliances</a>
     <a>Men</a>
     <a>Women</a>
+    <a>Kids</a>
     <a>Home</a>
+    <a>Beauty</a>
+    <a>Sports</a>
+    <a>Grocery</a>
 </nav>
 
-<h2 class="section-title">Featured</h2>
-
-<div class="product-grid">
-    <a href="watch.html" style="text-decoration:none;color:inherit">
-        <div class="card">
-            <img src="boatbud3">
-            <div>Boat Earbuds</div>
-            <div class="price">₹999</div>
-        </div>
-    </a>
-</div>
+<div id="productsContainer"></div>
 
 <script>
-    const accountBtn = document.getElementById("accountBtn");
-    const popup = document.getElementById("accountPopup");
-    const userEmail = document.getElementById("userEmail");
-    const logoutBtn = document.getElementById("logoutBtn");
+const productsData = [
+    { title: "Boat Earbuds", price: "₹999", img: "boatbud3.jpg", category: "Electronics" },
+    { title: "Noise Smartwatch", price: "₹1,499", img: "watch.jpg", category: "Electronics" },
+    { title: "Lenovo Mouse", price: "₹499", img: "mouse.jpg", category: "Electronics" },
+    { title: "HP Keyboard", price: "₹699", img: "keyboard.jpg", category: "Electronics" },
 
-    const user = JSON.parse(localStorage.getItem("homekart_user"));
+    { title: "Men's Jacket", price: "₹1,299", img: "jacket.jpg", category: "Fashion" },
+    { title: "Women's Kurti", price: "₹699", img: "kurti.jpg", category: "Fashion" },
+    { title: "Sports Shoes", price: "₹899", img: "shoes.jpg", category: "Fashion" },
+    { title: "Wallet Combo", price: "₹299", img: "wallet.jpg", category: "Fashion" },
 
-    if (user) {
-        accountBtn.textContent = "Account";
-        userEmail.textContent = user.email;
-    }
+    { title: "Mixer Grinder", price: "₹2,199", img: "mixer.jpg", category: "Home" },
+    { title: "LED Bulb Pack", price: "₹249", img: "bulb.jpg", category: "Home" },
+    { title: "Steel Bottle", price: "₹349", img: "bottle.jpg", category: "Home" },
+    { title: "Organizer Box", price: "₹199", img: "box.jpg", category: "Home" }
+];
 
-    accountBtn.onclick = () => {
-        if (!user) {
-            window.location.href = "login.html";
-        } else {
-            popup.style.display = popup.style.display === "block" ? "none" : "block";
-        }
-    };
+function renderSections() {
+    const container = document.getElementById("productsContainer");
+    const categories = [...new Set(productsData.map(p => p.category))];
 
-    logoutBtn.onclick = () => {
-        localStorage.removeItem("homekart_user");
-        localStorage.removeItem("cart");
-        location.reload();
-    };
+    container.innerHTML = categories.map(cat => `
+        <h2 class="section-title">${cat}</h2>
+        <div class="product-grid">
+            ${productsData.filter(p => p.category === cat).map(prod => `
+                ${prod.title === "Boat Earbuds" ? `
+                    <a href="watch.html" style="text-decoration:none; color:inherit;">
+                        <div class="card">
+                            <img src="${prod.img}">
+                            <div class="card-title">${prod.title}</div>
+                            <div class="price">${prod.price}</div>
+                        </div>
+                    </a>
+                ` : `
+                    <div class="card">
+                        <img src="${prod.img}">
+                        <div class="card-title">${prod.title}</div>
+                        <div class="price">${prod.price}</div>
+                    </div>
+                `}
+            `).join("")}
+        </div>
+    `).join("");
+}
 
-    document.addEventListener("click", (e) => {
-        if (!popup.contains(e.target) && e.target !== accountBtn) {
-            popup.style.display = "none";
-        }
-    });
+renderSections();
+
+document.getElementById("searchBtn").onclick = () => {
+    const text = searchInput.value.toLowerCase();
+    const results = productsData.filter(p => p.title.toLowerCase().includes(text));
+
+    productsContainer.innerHTML = `
+        <h2 class="section-title">Search Results</h2>
+        <div class="product-grid">
+            ${results.map(p => `
+                <div class="card">
+                    <img src="${p.img}">
+                    <div class="card-title">${p.title}</div>
+                    <div class="price">${p.price}</div>
+                </div>
+            `).join("")}
+        </div>
+    `;
+};
+</script>
+
+<script>
+const user = localStorage.getItem("homekart_user");
+if (user) {
+    document.getElementById("loginBtn").innerText = "Account";
+    document.getElementById("loginBtnLink").href = "account.html";
+}
 </script>
 
 </body>

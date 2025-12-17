@@ -1,40 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cart</title>
+</head>
+
+<body>
+
+<h2>Your Cart</h2>
+<div id="cartItems"></div>
+
 <script type="module">
 import { auth, db } from "./firebase.js";
-import { onAuthStateChanged } from 
-"https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
-import { collection, getDocs, deleteDoc, doc } from 
-"https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-auth.js";
 
-onAuthStateChanged(auth, async (user) => {
+const container = document.getElementById("cartItems");
+
+onAuthStateChanged(auth, async user => {
+  container.innerHTML = "";
+
   if (!user) {
-    alert("Login required");
-    location.href = "login.html";
+    container.innerHTML = "<p>Please login</p>";
     return;
   }
 
-  const cartDiv = document.getElementById("cartItems");
   const snap = await getDocs(collection(db, "carts", user.uid, "items"));
-  let total = 0;
-  cartDiv.innerHTML = "";
 
-  snap.forEach(d => {
-    const item = d.data();
-    total += item.price;
-    cartDiv.innerHTML += `
-      <div class="cart-item">
-        <img src="${item.img}">
-        <div>${item.name} - ₹${item.price}</div>
-        <button onclick="remove('${d.id}')">Remove</button>
-      </div>
-    `;
+  snap.forEach(doc => {
+    const d = doc.data();
+    container.innerHTML += `<p>${d.name} - ₹${d.price}</p>`;
   });
-
-  document.getElementById("totalAmount").innerText = "Total: ₹" + total;
 });
-
-window.remove = async (id) => {
-  const user = auth.currentUser;
-  await deleteDoc(doc(db, "carts", user.uid, "items", id));
-  location.reload();
-};
 </script>
+
+</body>
+</html>

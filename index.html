@@ -12,9 +12,8 @@
             box-sizing: border-box;
             font-family: Arial, sans-serif;
         }
-        body {
-            background: #f2f4f7;
-        }
+        body { background: #f2f4f7; }
+
         .top-bar {
             display: flex;
             align-items: center;
@@ -24,10 +23,8 @@
             color: white;
             flex-wrap: wrap;
         }
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-        }
+        .logo { font-size: 22px; font-weight: bold; }
+
         .search-container {
             display: flex;
             flex: 1;
@@ -47,6 +44,7 @@
             border-radius: 0 3px 3px 0;
             font-weight: bold;
         }
+
         .header-buttons {
             display: flex;
             gap: 6px;
@@ -56,11 +54,13 @@
             background: white;
             border-radius: 4px;
             border: none;
+            cursor: pointer;
         }
         .cart-btn {
             background: #1e88e5;
             color: white;
         }
+
         .category-bar {
             display: flex;
             overflow-x: auto;
@@ -73,11 +73,13 @@
             color: #333;
             font-size: 14px;
         }
+
         .section-title {
             font-size: 20px;
             font-weight: bold;
             margin: 20px 0 10px 15px;
         }
+
         .product-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -96,13 +98,46 @@
             height: 120px;
             object-fit: contain;
         }
-        .card-title {
-            font-size: 14px;
-        }
+        .card-title { font-size: 14px; }
         .price {
             color: green;
             font-weight: bold;
             margin-top: 5px;
+        }
+
+        /* ACCOUNT POPUP */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+        .modal-box {
+            background: white;
+            width: 280px;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        .modal-box h3 {
+            margin-bottom: 8px;
+        }
+        .modal-box p {
+            font-size: 14px;
+            color: #444;
+            margin-bottom: 15px;
+        }
+        .logout-btn {
+            background: #e53935;
+            color: white;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
         }
     </style>
 </head>
@@ -118,101 +153,79 @@
     </div>
 
     <div class="header-buttons">
-        <a id="loginBtnLink" href="login.html">
-            <button class="btn" id="loginBtn">Login</button>
-        </a>
-        <a href="cart.html">
-            <button class="btn cart-btn">Cart</button>
-        </a>
+        <button class="btn" id="accountBtn">Login</button>
+        <a href="cart.html"><button class="btn cart-btn">Cart</button></a>
     </div>
 </header>
 
 <nav class="category-bar">
-    <a>Electronics</a>
-    <a>TVs & Appliances</a>
-    <a>Men</a>
-    <a>Women</a>
-    <a>Kids</a>
-    <a>Home</a>
-    <a>Beauty</a>
-    <a>Sports</a>
-    <a>Grocery</a>
+    <a>Electronics</a><a>TVs</a><a>Men</a><a>Women</a><a>Kids</a>
+    <a>Home</a><a>Beauty</a><a>Sports</a><a>Grocery</a>
 </nav>
 
 <div id="productsContainer"></div>
 
+<!-- ACCOUNT POPUP -->
+<div class="modal" id="accountModal">
+    <div class="modal-box">
+        <h3 id="accName">User</h3>
+        <p id="accEmail">email@example.com</p>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</div>
+
 <script>
 const productsData = [
     { title: "Boat Earbuds", price: "₹999", img: "boatbud3.jpg", category: "Electronics" },
-    { title: "Noise Smartwatch", price: "₹1,499", img: "watch.jpg", category: "Electronics" },
-    { title: "Lenovo Mouse", price: "₹499", img: "mouse.jpg", category: "Electronics" },
-    { title: "HP Keyboard", price: "₹699", img: "keyboard.jpg", category: "Electronics" },
-
-    { title: "Men's Jacket", price: "₹1,299", img: "jacket.jpg", category: "Fashion" },
-    { title: "Women's Kurti", price: "₹699", img: "kurti.jpg", category: "Fashion" },
-    { title: "Sports Shoes", price: "₹899", img: "shoes.jpg", category: "Fashion" },
-    { title: "Wallet Combo", price: "₹299", img: "wallet.jpg", category: "Fashion" },
-
-    { title: "Mixer Grinder", price: "₹2,199", img: "mixer.jpg", category: "Home" },
-    { title: "LED Bulb Pack", price: "₹249", img: "bulb.jpg", category: "Home" },
-    { title: "Steel Bottle", price: "₹349", img: "bottle.jpg", category: "Home" },
-    { title: "Organizer Box", price: "₹199", img: "box.jpg", category: "Home" }
+    { title: "Noise Smartwatch", price: "₹1,499", img: "", category: "Electronics" },
+    { title: "Lenovo Mouse", price: "₹499", img: "", category: "Electronics" }
 ];
 
 function renderSections() {
-    const container = document.getElementById("productsContainer");
-    const categories = [...new Set(productsData.map(p => p.category))];
+    const c = document.getElementById("productsContainer");
+    const cats = [...new Set(productsData.map(p => p.category))];
 
-    container.innerHTML = categories.map(cat => `
+    c.innerHTML = cats.map(cat => `
         <h2 class="section-title">${cat}</h2>
         <div class="product-grid">
-            ${productsData.filter(p => p.category === cat).map(prod => `
-                ${prod.title === "Boat Earbuds" ? `
-                    <a href="watch.html" style="text-decoration:none; color:inherit;">
-                        <div class="card">
-                            <img src="${prod.img}">
-                            <div class="card-title">${prod.title}</div>
-                            <div class="price">${prod.price}</div>
-                        </div>
-                    </a>
-                ` : `
+            ${productsData.filter(p => p.category === cat).map(p => `
+                <a href="watch.html" style="text-decoration:none;color:inherit;">
                     <div class="card">
-                        <img src="${prod.img}">
-                        <div class="card-title">${prod.title}</div>
-                        <div class="price">${prod.price}</div>
+                        <img src="${p.img || 'https://via.placeholder.com/150'}">
+                        <div class="card-title">${p.title}</div>
+                        <div class="price">${p.price}</div>
                     </div>
-                `}
+                </a>
             `).join("")}
         </div>
     `).join("");
 }
-
 renderSections();
-
-document.getElementById("searchBtn").onclick = () => {
-    const text = searchInput.value.toLowerCase();
-    const results = productsData.filter(p => p.title.toLowerCase().includes(text));
-
-    productsContainer.innerHTML = `
-        <h2 class="section-title">Search Results</h2>
-        <div class="product-grid">
-            ${results.map(p => `
-                <div class="card">
-                    <img src="${p.img}">
-                    <div class="card-title">${p.title}</div>
-                    <div class="price">${p.price}</div>
-                </div>
-            `).join("")}
-        </div>
-    `;
-};
 </script>
 
 <script>
-const user = localStorage.getItem("homekart_user");
+const user = JSON.parse(localStorage.getItem("homekart_user"));
+const accountBtn = document.getElementById("accountBtn");
+const modal = document.getElementById("accountModal");
+
 if (user) {
-    document.getElementById("loginBtn").innerText = "Account";
-    document.getElementById("loginBtnLink").href = "account.html";
+    accountBtn.textContent = "Account";
+    accountBtn.onclick = () => {
+        document.getElementById("accName").textContent = user.name || "User";
+        document.getElementById("accEmail").textContent = user.email;
+        modal.style.display = "flex";
+    };
+} else {
+    accountBtn.onclick = () => location.href = "login.html";
+}
+
+modal.onclick = e => {
+    if (e.target === modal) modal.style.display = "none";
+};
+
+function logout() {
+    localStorage.removeItem("homekart_user");
+    location.reload();
 }
 </script>
 

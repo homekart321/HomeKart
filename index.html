@@ -152,7 +152,7 @@ body { background: #f2f4f7; }
 
     <div class="header-buttons">
         <button class="btn" id="accountBtn">Login</button>
-        <button class="btn cart-btn" onclick="goCart()">Cart</button>
+        <a href="cart.html"><button class="btn cart-btn">Cart</button></a>
     </div>
 </header>
 
@@ -185,10 +185,12 @@ const productsData = [
     { title: "Noise Smartwatch", price: "₹1,499", img: "", category: "Electronics" },
     { title: "Lenovo Mouse", price: "₹499", img: "", category: "Electronics" },
     { title: "HP Keyboard", price: "₹699", img: "", category: "Electronics" },
+
     { title: "Men's Jacket", price: "₹1,299", img: "", category: "Fashion" },
     { title: "Women's Kurti", price: "₹699", img: "", category: "Fashion" },
     { title: "Sports Shoes", price: "₹899", img: "", category: "Fashion" },
     { title: "Wallet Combo", price: "₹299", img: "", category: "Fashion" },
+
     { title: "Mixer Grinder", price: "₹2,199", img: "", category: "Home" },
     { title: "LED Bulb Pack", price: "₹249", img: "", category: "Home" },
     { title: "Steel Bottle", price: "₹349", img: "", category: "Home" },
@@ -231,8 +233,8 @@ const modal = document.getElementById("accountModal");
 if (user) {
     accountBtn.textContent = "Account";
     accountBtn.onclick = () => {
-        accName.textContent = user.name || "User";
-        accEmail.textContent = user.email;
+        document.getElementById("accName").textContent = user.name || "User";
+        document.getElementById("accEmail").textContent = user.email;
         modal.style.display = "flex";
     };
 } else {
@@ -245,17 +247,7 @@ modal.onclick = e => {
 
 function logout() {
     localStorage.removeItem("homekart_user");
-    localStorage.removeItem("cart"); // 🔴 IMPORTANT FIX
     location.reload();
-}
-
-function goCart() {
-    if (!user) {
-        alert("Please login to access cart");
-        location.href = "login.html";
-        return;
-    }
-    location.href = "cart.html";
 }
 </script>
 

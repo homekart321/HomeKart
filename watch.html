@@ -37,31 +37,33 @@ body { font-family: Arial, sans-serif; background:#f1f3f6; margin:0; }
 <body>
 
 <div class="container">
-<div class="top-bar"><a onclick="history.back()">Back</a></div>
+    <div class="top-bar">
+        <a onclick="history.back()">Back</a>
+    </div>
 
-<div class="product-main">
-<div class="left">
-<div class="thumbs">
-<img onclick="changeImage('boatbud3')" src="boatbud3">
-<img onclick="changeImage('boatbud1')" src="boatbud1">
-<img onclick="changeImage('boatbud2')" src="boatbud2">
-</div>
-<img id="mainImage" class="main-img" src="boatbud3">
-</div>
+    <div class="product-main">
+        <div class="left">
+            <div class="thumbs">
+                <img src="boatbud3" onclick="changeImage('boatbud3')">
+                <img src="boatbud1" onclick="changeImage('boatbud1')">
+                <img src="boatbud2" onclick="changeImage('boatbud2')">
+            </div>
+            <img id="mainImage" class="main-img" src="boatbud3">
+        </div>
 
-<div class="right">
-<h1>boAt Airdopes 131 Bluetooth Earbuds</h1>
-<div class="price">₹999</div>
+        <div class="right">
+            <h1>boAt Airdopes 131 Bluetooth Earbuds</h1>
+            <div class="price">₹999</div>
 
-<div class="buttons">
-<button class="btn add-cart" id="addCartBtn">Add to Cart</button>
-<button class="btn buy-now">Buy Now</button>
-<button class="btn go-cart" id="goCartBtn">Go to Cart</button>
-</div>
+            <div class="buttons">
+                <button class="btn add-cart" id="addCartBtn">Add to Cart</button>
+                <button class="btn buy-now">Buy Now</button>
+                <button class="btn go-cart" id="goCartBtn">Go to Cart</button>
+            </div>
 
-<p>Lightweight wireless earbuds with immersive sound.</p>
-</div>
-</div>
+            <p>Lightweight wireless earbuds with immersive sound.</p>
+        </div>
+    </div>
 </div>
 
 <!-- ================= FIREBASE LOGIC (FIXED) ================= -->
@@ -72,51 +74,53 @@ import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/fir
 
 let currentUser = null;
 
-// 🔐 Auth state (STRICT)
+// 🔐 Auth state listener (REAL FIX)
 onAuthStateChanged(auth, (user) => {
     if (user) {
         currentUser = user;
     } else {
         currentUser = null;
+
+        // Disable buttons when logged out
+        document.getElementById("addCartBtn").onclick = () => {
+            alert("Please login to add items to cart");
+            window.location.href = "login.html";
+        };
+
+        document.getElementById("goCartBtn").onclick = () => {
+            alert("Please login to view cart");
+            window.location.href = "login.html";
+        };
     }
 });
 
-// 🛒 Add to Cart (BLOCKED when logged out)
+// 🛒 Add to cart (ONLY if logged in)
 document.getElementById("addCartBtn").addEventListener("click", async () => {
-    if (!currentUser) {
-        alert("Please login first");
-        window.location.href = "login.html";
-        return;
-    }
+    if (!currentUser) return;
 
     try {
-        await addDoc(
-            collection(db, "carts", currentUser.uid, "items"),
-            {
-                name: "boAt Airdopes 131",
-                price: 999,
-                img: "boatbud3",
-                createdAt: serverTimestamp()
-            }
-        );
+        await addDoc(collection(db, "carts", currentUser.uid, "items"), {
+            name: "boAt Airdopes 131",
+            price: 999,
+            img: "boatbud3",
+            createdAt: serverTimestamp()
+        });
+
         alert("Added to cart");
     } catch (e) {
         alert("Failed to add to cart");
+        console.error(e);
     }
 });
 
-// 🧾 Go to Cart (BLOCKED when logged out)
+// ➡️ Go to cart
 document.getElementById("goCartBtn").addEventListener("click", () => {
-    if (!currentUser) {
-        alert("Please login first");
-        window.location.href = "login.html";
-        return;
-    }
+    if (!currentUser) return;
     window.location.href = "cart.html";
 });
 
 // Image switch
-window.changeImage = function(img){
+window.changeImage = (img) => {
     document.getElementById("mainImage").src = img;
 };
 </script>

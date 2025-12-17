@@ -7,106 +7,129 @@
 
     <style>
         body { background: #f1f3f6; margin: 0; font-family: Arial; }
-        .cart-container { width: 90%; max-width: 800px; background: white; margin: 30px auto; padding: 20px; border-radius: 10px; }
-        .cart-item { display: flex; align-items: center; border-bottom: 1px solid #ddd; padding: 15px 0; }
-        .cart-item img { width: 80px; height: 80px; border-radius: 8px; margin-right: 20px; }
-        .cart-details { flex: 1; }
-        .price { color: #388e3c; font-weight: bold; margin-top: 5px; }
-        .remove-btn { background: red; color: white; padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; }
-        .total-box { font-size: 22px; margin-top: 20px; text-align: right; font-weight: bold; }
-        .back-btn { display: block; width: 220px; margin: 25px auto 10px; padding: 12px; background: #2874f0; color: white; text-align: center; text-decoration: none; font-size: 18px; border-radius: 6px; }
-    </style>
-</head>
-<body>
 
-    <div class="cart-container">
-        <h2>Your Cart</h2>
-        <div id="cartItems"></div>
-        <div class="total-box" id="totalAmount">Total: ₹0</div>
-    </div>
-
-    <a id="backBtn" class="back-btn">← Back</a>
-
-    <!-- FIREBASE IMPORTS -->
-    <script type="module">
-        import { auth } from "./firebase.js";
-        import {
-            getFirestore, doc, getDoc, updateDoc
-        } from "https://www.gstatic.com/firebasejs/10.12.1/firebase-firestore.js";
-
-        const db = getFirestore();
-
-        // -----------------------------
-        //   1. CHECK IF LOGGED IN
-        // -----------------------------
-        auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                alert("Please login to view your cart.");
-                window.location.href = "login.html";
-                return;
-            }
-
-            loadCartFirestore(user.uid);
-        });
-
-        // -----------------------------
-        //   2. LOAD CART FROM FIRESTORE
-        // -----------------------------
-        async function loadCartFirestore(uid) {
-            const ref = doc(db, "users", uid);
-            const snap = await getDoc(ref);
-
-            let cart = snap.exists() ? snap.data().cart || [] : [];
-
-            let container = document.getElementById("cartItems");
-            container.innerHTML = "";
-
-            let total = 0;
-
-            cart.forEach((item, index) => {
-                total += Number(item.price);
-
-                container.innerHTML += `
-                    <div class="cart-item">
-                        <img src="${item.img}" alt="Product">
-                        <div class="cart-details">
-                            <h3>${item.name}</h3>
-                            <p class="price">₹${item.price}</p>
-                        </div>
-                        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
-                    </div>
-                `;
-            });
-
-            document.getElementById("totalAmount").innerText = "Total: ₹" + total;
-
-            // store globally to remove later
-            window.cartData = cart;
-            window.userId = uid;
+        .cart-container {
+            width: 90%;
+            max-width: 800px;
+            background: white;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 10px;
         }
 
-        // -----------------------------
-        //   3. REMOVE ITEM FROM CART
-        // -----------------------------
-        window.removeItem = async function (index) {
-            window.cartData.splice(index, 1);
+        .cart-item {
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
 
-            const ref = doc(db, "users", window.userId);
-            await updateDoc(ref, { cart: window.cartData });
+        .cart-item img {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            margin-right: 20px;
+        }
 
-            loadCartFirestore(window.userId);
-        };
+        .cart-details { flex: 1; }
 
-        // -----------------------------
-        //   4. BACK BUTTON LOGIC
-        // -----------------------------
-        document.addEventListener("DOMContentLoaded", () => {
-            let lastPage = localStorage.getItem("lastPage");
-            if (!lastPage) lastPage = "index.html";
-            document.getElementById("backBtn").href = lastPage;
+        .price {
+            color: #388e3c;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        .remove-btn {
+            background: red;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .total-box {
+            font-size: 22px;
+            margin-top: 20px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            display: block;
+            width: 220px;
+            margin: 25px auto 10px;
+            padding: 12px;
+            background: #2874f0;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-size: 18px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="cart-container">
+    <h2>Your Cart</h2>
+    <div id="cartItems"></div>
+    <div class="total-box" id="totalAmount">Total: ₹0</div>
+</div>
+
+<a href="index.html" class="back-btn">← Back</a>
+
+<script>
+    const user = JSON.parse(localStorage.getItem("homekart_user"));
+
+    if (!user) {
+        alert("Please login first");
+        window.location.href = "login.html";
+    }
+
+    const cartKey = "cart_" + user.email;
+
+    function loadCart() {
+        const cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        const container = document.getElementById("cartItems");
+        container.innerHTML = "";
+
+        let total = 0;
+
+        if (cart.length === 0) {
+            container.innerHTML = "<p>Your cart is empty.</p>";
+            document.getElementById("totalAmount").innerText = "Total: ₹0";
+            return;
+        }
+
+        cart.forEach((item, index) => {
+            total += item.price;
+
+            container.innerHTML += `
+                <div class="cart-item">
+                    <img src="${item.img}">
+                    <div class="cart-details">
+                        <h3>${item.name}</h3>
+                        <p class="price">₹${item.price}</p>
+                    </div>
+                    <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                </div>
+            `;
         });
 
-    </script>
+        document.getElementById("totalAmount").innerText = "Total: ₹" + total;
+    }
+
+    function removeItem(index) {
+        let cart = JSON.parse(localStorage.getItem(cartKey)) || [];
+        cart.splice(index, 1);
+        localStorage.setItem(cartKey, JSON.stringify(cart));
+        loadCart();
+    }
+
+    loadCart();
+</script>
 
 </body>
 </html>
